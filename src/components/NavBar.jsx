@@ -1,3 +1,4 @@
+import { Dropdown } from "bootstrap";
 import "../styles/NavBar.css";
 
 export default function NavBar() {
@@ -20,7 +21,8 @@ export default function NavBar() {
             </div>
 
             <div className="navbar-actions">
-                <button className="planner-button">+ Select Area on map</button>
+                <Dropdown/>
+                <calcite-button icon-start="area-hash-filled-plus" title="Select an area on map" kind="neutral"/>
             </div>
         </nav>
     );
