@@ -1,12 +1,12 @@
-import { Dropdown } from "bootstrap";
+import Dropdown from "../common/Dropdown";
 import "../styles/NavBar.css";
 
-export default function NavBar() {
+export default function NavBar({ dropdownOptions, setSelectedState }) {
     return (
         <nav className="navbar">
             <div className="navbar-brand">
-       
-         <div className="brand-icon">⌂</div>
+        {/* change icon later to a proper one */}
+         <div className="brand-icon">⌂</div> 
                 <div>
                     <h2>City Planner</h2>
                     <span>Urban Intelligence</span>
@@ -21,7 +21,7 @@ export default function NavBar() {
             </div>
 
             <div className="navbar-actions">
-                <Dropdown/>
+                <Dropdown options={dropdownOptions} placeholder="Select a state" onSelect={(selected) => setSelectedState(selected)}/>
                 <calcite-button icon-start="area-hash-filled-plus" title="Select an area on map" kind="neutral"/>
             </div>
         </nav>

@@ -1,42 +1,37 @@
-
 import React, { useState } from "react";
 
-const Dropdown = ({options = [], placeholder = "Select", onSelect
+import "../styles/Dropdown.css";
+
+const Dropdown = ({
+    options = [],
+    placeholder = "Select",
+    onSelect
 }) => {
-  const [selected, setSelected] = useState(null);
+    const [selected, setSelected] = useState("");
 
-  const handleSelect = (option) => {
-    setSelected(option);
-    onSelect?.(option);
-  };
+    const handleSelect = (e) => {
+        const index = Number(e.target.value);
+        const selectedOption = options[index];
 
-  return (
-    <div className="dropdown">
-      <button
-        className="btn btn-light border border-dark dropdown-toggle"
-        type="button"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-      >
-        {selected?.label || placeholder}
-      </button>
+        setSelected(e.target.value);
+        onSelect?.(selectedOption);
+    };
 
-      <ul className="dropdown-menu">
-        {options.map((option) => (
-          <li key={option.value}>
-            <button
-              className="dropdown-item"
-              type="button"
-              onClick={() => handleSelect(option)}
+    //to be added - all option for 1=1 query
+    return (
+        <div className="dropdown-wrapper">
+            <select className="custom-dropdown" value={selected} onChange={handleSelect}
             >
-              {option.label}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+                <option value="" disabled> {placeholder} </option>
+
+                {options.map((option, index) => (
+                    <option key={index} value={index}>
+                        {option.label}
+                    </option>
+                ))}
+            </select>
+        </div>
+    );
 };
 
 export default Dropdown;
-
