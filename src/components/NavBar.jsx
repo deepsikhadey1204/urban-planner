@@ -2,6 +2,11 @@ import Dropdown from "../common/Dropdown";
 import "../styles/NavBar.css";
 
 export default function NavBar({ dropdownOptions, setSelectedState }) {
+
+    const handleSelectArea = () => {
+        return
+    }
+
     return (
         <nav className="navbar">
             <div className="navbar-brand">
@@ -22,7 +27,7 @@ export default function NavBar({ dropdownOptions, setSelectedState }) {
 
             <div className="navbar-actions">
                 <Dropdown options={dropdownOptions} placeholder="Select a state" onSelect={(selected) => setSelectedState(selected)}/>
-                <calcite-button icon-start="area-hash-filled-plus" title="Select an area on map" kind="neutral"/>
+                <calcite-button icon-start="area-hash-filled-plus" title="Select an area on map" kind="neutral" onClick={handleSelectArea}/>
             </div>
         </nav>
     );

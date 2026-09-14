@@ -1,7 +1,7 @@
 import './App.css'
-import MapPage from './components/MapPage'
 import NavBar from './components/NavBar'
 import { useState } from "react"
+import MapLayout from './pages/MapLayout';
 
 function App() {
 
@@ -10,7 +10,7 @@ function App() {
   return (
     <>
       <NavBar dropdownOptions={dropdownOptions} setSelectedState={setSelectedState}/>
-      <MapPage setDropdownOptions={setDropdownOptions} selectedState={selectedState}/>
+      <MapLayout setDropdownOptions={setDropdownOptions} selectedState={selectedState}/>
     </>
   )
 }

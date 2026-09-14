@@ -20,8 +20,7 @@ const Dropdown = ({
     //to be added - all option for 1=1 query
     return (
         <div className="dropdown-wrapper">
-            <select className="custom-dropdown" value={selected} onChange={handleSelect}
-            >
+            <select className="custom-dropdown" value={selected} onChange={handleSelect}>
                 <option value="" disabled> {placeholder} </option>
 
                 {options.map((option, index) => (
