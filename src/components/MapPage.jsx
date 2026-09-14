@@ -3,8 +3,9 @@ import Map from "@arcgis/core/Map.js";
 import MapView from "@arcgis/core/views/MapView.js";
 import Home from "@arcgis/core/widgets/Home.js";
 import GeoJSONLayer from "@arcgis/core/layers/GeoJSONLayer.js";
+import populationData from "../../data/population.json";
 
-export default function MapPage({ setDropdownOptions, selectedState }){
+export default function MapPage({ setDropdownOptions, selectedState, setView, inputAreaGeom }){
     const mapRef = useRef(null);
     const [mapView, setMapView] = useState(null);
     const [stateLyr, setStateLyr] = useState(null);
@@ -26,6 +27,7 @@ export default function MapPage({ setDropdownOptions, selectedState }){
         });
 
         setMapView(view);
+        setView(view);
     }, []);
 
     //add widgets and state layer - other layers needs to be added too
@@ -43,21 +45,25 @@ export default function MapPage({ setDropdownOptions, selectedState }){
 
         //add district boundary layer
         const geojsonLyr = new GeoJSONLayer({
-            url: "../../data/state.geojson"
+            url: "../../data/state.geojson",
+            title: "Districts"
         });
 
         const subdistrictLyr = new GeoJSONLayer({
-            url: "../../data/subdistricts.geojson"
+            url: "../../data/subdistricts.geojson",
+            title: "SubDistricts"
         })
 
         //add hospitals layer
         const hospitalGeoJson = new GeoJSONLayer({
-            url: "../../data/hospitals.geojson"
+            url: "../../data/hospitals.geojson",
+            title: "Hospitals"
         })
 
         //add roads layer
         const roadsGeoJson = new GeoJSONLayer({
-            url: "../../data/roads.geojson"
+            url: "../../data/roads.geojson",
+            title: "Roads"
         });
 
         //add a renderer to roads
@@ -128,16 +134,6 @@ export default function MapPage({ setDropdownOptions, selectedState }){
         setRoadsLyr(roadsGeoJson);
         setSubDistrictlyr(subdistrictLyr);
 
-        let hospitalQuery = hospitalGeoJson.createQuery();
-        hospitalQuery.where = "1=1";
-        hospitalQuery.outFields = ["*"];
-        hospitalQuery.returnGeometry = false;
-        hospitalQuery.returnDistinctValues = true;
-
-        hospitalGeoJson.queryFeatures(hospitalQuery).then((hospitals) => {
-            console.log(hospitals.features);
-        })
-
         geojsonLyr.definitionExpression = `ST_NM = 'Maharashtra'`;
         geojsonLyr.definitionExpression = "ST_NM = 'Maharashtra'";
         geojsonLyr.when(() => {
@@ -167,9 +163,9 @@ export default function MapPage({ setDropdownOptions, selectedState }){
 
             });
 
-        fetch("http://127.0.0.1:8000").then((resp) => {
-            console.log(resp);
-        })
+        // fetch("http://127.0.0.1:8000").then((resp) => {
+        //     console.log(resp);
+        // })
 
 
     }, [mapView]);
@@ -188,7 +184,56 @@ export default function MapPage({ setDropdownOptions, selectedState }){
         hospitalLyr.visible = false;
         mapView.goTo(extent.expand(1.2));
 
-    }, [selectedState])
+    }, [selectedState]);
+
+   useEffect(() => {
+
+    if (!inputAreaGeom) return;
+
+    const getAreaData = async () => {
+
+        // Hospital query
+        const hospitalQuery = hospitalLyr.createQuery();
+        hospitalQuery.geometry = inputAreaGeom;
+        hospitalQuery.spatialRelationship = "intersects";
+        hospitalQuery.returnGeometry = true;
+        hospitalQuery.outFields = ["*"];
+
+
+        // Road query
+        const roadsQuery = roadsLyr.createQuery();
+        roadsQuery.geometry = inputAreaGeom;
+        roadsQuery.spatialRelationship = "intersects";
+        roadsQuery.returnGeometry = true;
+        roadsQuery.outFields = ["*"];
+
+
+        // Subdistrict query
+        const subdistrictQuery = subDistrictLyr.createQuery();
+        subdistrictQuery.geometry = inputAreaGeom;
+        subdistrictQuery.spatialRelationship = "intersects";
+        subdistrictQuery.returnGeometry = true;
+        subdistrictQuery.outFields = ["*"];
+
+
+        const [hospitalResponse, roadResponse, subdistrictResponse] = await Promise.all([
+            hospitalLyr.queryFeatures(hospitalQuery),
+            roadsLyr.queryFeatures(roadsQuery),
+            subDistrictLyr.queryFeatures(subdistrictQuery)
+        ]);
+
+        const selectedAreaData = {
+            hospitals: hospitalResponse.features,
+            roads: roadResponse.features,
+            subdistricts: subdistrictResponse.features
+
+        };
+        console.log("Selected Area Data:", selectedAreaData);
+    };
+
+    getAreaData();
+
+}, [inputAreaGeom]);
 
     return(
         <div id="mapDiv" ref={mapRef}></div>
