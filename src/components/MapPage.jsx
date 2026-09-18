@@ -228,7 +228,26 @@ export default function MapPage({ setDropdownOptions, selectedState, setView, in
             subdistricts: subdistrictResponse.features
 
         };
-        console.log("Selected Area Data:", selectedAreaData);
+        
+        const analysisData = {
+            hospitalCount: selectedAreaData.hospitals.length,
+
+            roadCount: selectedAreaData.roads.length,
+
+            subdistrictCount: selectedAreaData.subdistricts.length,
+
+            subdistricts: selectedAreaData.subdistricts.map((feature) => ({
+                name: feature.attributes.ds_name,
+                population: feature.attributes.total_popu,
+                households: feature.attributes.total_hous,
+                forestArea: feature.attributes.forest_are,
+                agriculturalArea: feature.attributes.net_area_s,
+                irrigatedArea: feature.attributes.area_irrig,
+                barrenArea: feature.attributes.barren_un_
+            }))
+        };
+
+        console.log("Analysis Data:", analysisData);
     };
 
     getAreaData();

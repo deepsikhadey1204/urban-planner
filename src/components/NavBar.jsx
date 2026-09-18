@@ -5,12 +5,12 @@ import "../styles/NavBar.css";
 import { useEffect, useState } from "react";
 import { useRef } from "react";
 
-export default function NavBar({ dropdownOptions, setSelectedState, view, setInputAreaGeom }) { 
+export default function NavBar({ dropdownOptions, setSelectedState, view, setInputAreaGeom, setCurrentModule, currentModule }) { 
 
     const [sketchVM, setSketchVM] = useState(null);
     const [selectedOptn, setSelectedOptn] = useState(true);
     const graphicsLayerRef = useRef(null);
-
+    
     
     useEffect(() => {
         if(!view) return;
@@ -64,10 +64,10 @@ export default function NavBar({ dropdownOptions, setSelectedState, view, setInp
             </div>
 
             <div className="navbar-links">
-                <a href="#dashboard">Dashboard</a>
-                <a href="#map" className="active">City Map</a>
-                <a href="#analysis">Analysis</a>
-                <a href="#scenarios">Scenarios</a>
+                <a href="#dashboard" onClick={() => setCurrentModule("dashboard")} className={currentModule === "dashboard" ? "active" : ""}>Dashboard</a>
+                <a href="#map" onClick={() => setCurrentModule("map")} className={currentModule === "map" ? "active" : ""}>City Map</a>
+                <a href="#analysis" onClick={()=> setCurrentModule("analysis")} className={currentModule === "analysis" ? "active" : ""}>Analysis</a>
+                <a href="#scenarios" onClick={() => setCurrentModule("scenarios")} className={currentModule === "scenarios" ? "active" : ""}>Scenarios</a>
             </div>
 
             <div className="navbar-actions">
