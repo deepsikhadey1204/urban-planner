@@ -5,7 +5,7 @@ import Home from "@arcgis/core/widgets/Home.js";
 import GeoJSONLayer from "@arcgis/core/layers/GeoJSONLayer.js";
 import populationData from "../../data/population.json";
 
-export default function MapPage({ setDropdownOptions, selectedState, setView, inputAreaGeom }){
+export default function MapPage({ setDropdownOptions, selectedState, setView, inputAreaGeom, setSelectedAreaInfo, currentModule }){
     const mapRef = useRef(null);
     const [mapView, setMapView] = useState(null);
     const [stateLyr, setStateLyr] = useState(null);
@@ -15,12 +15,15 @@ export default function MapPage({ setDropdownOptions, selectedState, setView, in
 
     //load map
     useEffect(() => {
+
+        if (!mapRef.current) return;
+
         const map = new Map({
             basemap: "satellite"
         });
 
         const view = new MapView({
-            map: map,
+            map,
             container: mapRef.current,
             center: [78, 28],
             zoom: 4
@@ -28,6 +31,11 @@ export default function MapPage({ setDropdownOptions, selectedState, setView, in
 
         setMapView(view);
         setView(view);
+
+        return () => {
+            view.destroy();
+        };
+
     }, []);
 
     //add widgets and state layer - other layers needs to be added too
@@ -142,7 +150,7 @@ export default function MapPage({ setDropdownOptions, selectedState, setView, in
                 returnGeometry: true,
                 outFields: ["ST_NM"]
             }).then((response) => {
-                if (!response.extent) return;
+                if (!response.extent || selectedState) return;
                 mapView.goTo(response.extent);
             });
         });
@@ -172,23 +180,28 @@ export default function MapPage({ setDropdownOptions, selectedState, setView, in
 
     //zoom to the layer on dropdown selection
     useEffect(() => {
-        if(!selectedState) return
 
-        subDistrictLyr.definitionExpression = `district = '${selectedState.label}'`
+    if (!selectedState || !subDistrictLyr || !stateLyr || !roadsLyr || !hospitalLyr || !mapView) {
+        return;
+    }
 
-        const extent = selectedState.value.extent;
+    subDistrictLyr.definitionExpression =
+        `district = '${selectedState.label}'`;
 
-        subDistrictLyr.visible = true;
-        stateLyr.visible = false;
-        roadsLyr.visible = false;
-        hospitalLyr.visible = false;
-        mapView.goTo(extent.expand(1.2));
+    const extent = selectedState.value.extent;
 
-    }, [selectedState]);
+    subDistrictLyr.visible = true;
+    stateLyr.visible = false;
+    roadsLyr.visible = false;
+    hospitalLyr.visible = false;
+
+    mapView.goTo(extent.expand(1.2));
+
+}, [selectedState, subDistrictLyr, stateLyr, roadsLyr, hospitalLyr,  mapView]);
 
    useEffect(() => {
 
-    if (!inputAreaGeom) return;
+    if (!inputAreaGeom || !subDistrictLyr || !stateLyr || !roadsLyr || !hospitalLyr) return;
 
     const getAreaData = async () => {
 
@@ -228,7 +241,7 @@ export default function MapPage({ setDropdownOptions, selectedState, setView, in
             subdistricts: subdistrictResponse.features
 
         };
-        
+        setSelectedAreaInfo(selectedAreaData);
         const analysisData = {
             hospitalCount: selectedAreaData.hospitals.length,
 
@@ -252,7 +265,7 @@ export default function MapPage({ setDropdownOptions, selectedState, setView, in
 
     getAreaData();
 
-}, [inputAreaGeom]);
+}, [inputAreaGeom, subDistrictLyr, stateLyr, roadsLyr, hospitalLyr,]);
 
     return(
         <div id="mapDiv" ref={mapRef}></div>

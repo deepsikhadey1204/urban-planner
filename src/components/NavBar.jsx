@@ -39,6 +39,7 @@ export default function NavBar({ dropdownOptions, setSelectedState, view, setInp
             if(evt.state == "complete"){
                 console.log(evt.graphic.geometry);
                 setInputAreaGeom(evt.graphic.geometry);
+                graphicsLayer.add(evt.graphic.geometry);
             }
         })
 
